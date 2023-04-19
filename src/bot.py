@@ -1,12 +1,12 @@
 import discord
 from discord.ext import commands
 from discord.utils import get
+import os
 
 intents = discord.Intents.all()
 intents.message_content = True
 
 config = {
-    'token': 'MTA5ODE5MDUzNzExMjE3MDUyOA.GEnYni.YWOxPhv4_6O8k1tn7sjlJZSJK4XUK08JBn2Qr8',
     'prefix': '.'
 }
 
@@ -32,4 +32,4 @@ async def on_message(message):
                     await message.delete()
                     await message.channel.send(f"{message.author.mention} ти не маєш ліцензії на слово ЖИД")
 
-bot.run(config['token'])
+bot.run(os.environment('BOT_DS_TOKEN'))
