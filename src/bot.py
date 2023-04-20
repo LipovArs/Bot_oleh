@@ -22,7 +22,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
 
-    if message.context.startwith('.help'):
+    if message.content.startswith('.help'):
         await message.channel.send(bot_func.help_fun())
 
     elif message.content.startswith('.check_all_ban_words'):
