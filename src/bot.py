@@ -34,8 +34,7 @@ async def on_message(message):
         await message.channel.send(bot_func.get_ban_words())
 
     elif message.content.startswith('.g'):
-        msg = message.content
-        await message.channel.send(bot_func.gaussian_method(msg))
+        await message.channel.send(bot_func.gaussian_method(message.content))
 
     elif message.content.startswith('.'):
         await message.channel.send("Unknown command.")

@@ -1,3 +1,4 @@
+import gaussian_sollution
 CONTENT_WORDS = ["жид", "жиди", "жидо-бандерівець", "жидо-бандеравець", "жидобор", "жидо-бандера", "жидобандерівець",
                  "jid", "жидів", "жидами", "жида", "жидах", "жидом", "жиду", "жидам", "жиді", ";bl", ":bl", ";blb",
                  ":blb"]
@@ -14,4 +15,7 @@ def get_ban_words():
 
 
 def gaussian_method(msg):
-    return msg
+    msg = msg.split(" ", 1)
+    formula = msg[1]
+
+    return gaussian_sollution.final_res(formula)
