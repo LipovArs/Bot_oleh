@@ -22,11 +22,15 @@ async def on_ready():
 @bot.event
 async def on_message(message):
 
-    if message.context.startwith('.help'):
+    if message.content.startswith('.help'):
         await message.channel.send(bot_func.help_fun())
 
     elif message.content.startswith('.check_all_ban_words'):
         await message.channel.send(bot_func.get_ban_words())
+
+    elif message.content.startswith('.g'):
+        msg = message.content
+        await message.channel.send(bot_func.gaussian_method(msg))
 
     elif message.content.startswith('.'):
         await message.channel.send("Unknown command.")
@@ -34,10 +38,10 @@ async def on_message(message):
     elif get(message.guild.roles, name="Жидобор") not in message.author.roles:
         print(message.content)
         for content in message.content.lower().split():
-            for course_word in CONTENT_WORDS:
+            for course_word in bot_func.get_ban_words():
                 if content == course_word:
                     await message.delete()
                     await message.channel.send(f"{message.author.mention} ти не маєш ліцензії на слово ЖИД")
 
 
-bot.run(os.environment('BOT_DS_TOKEN'))
+bot.run(os.environ['BOT_DS_TOKEN'])
