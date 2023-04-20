@@ -6,7 +6,7 @@ CONTENT_WORDS = ["жид", "жиди", "жидо-бандерівець", "жи�
 
 def help_fun():
     """"Help function"""
-    return 'Here is some help about bot' \
+    return 'Here is some help about bot\n' \
            '.check_all_ban_words - get all ban words on this server'
 
 

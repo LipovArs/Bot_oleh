@@ -15,7 +15,6 @@ config = {
 }
 
 bot = commands.Bot(command_prefix=config['prefix'], intents=intents)
-client = discord.Client(intents=intents)
 
 
 @bot.event
@@ -48,13 +47,13 @@ async def on_message(message):
                     await message.channel.send(f"{message.author.mention} ти не маєш ліцензії на слово ЖИД")
 
 
-@client.event
+@bot.event
 async def on_member_update(before, after):
-    if before.activities != after.activities:
-        if len(after.activities) == 0:
-            print(f"{after.name} has stopped playing a game.")
-        elif str(after.activities[0].type) == "ActivityType.playing":
-            print(f"{after.name} is now playing {after.activities[0].name}.")
+    if before.nick != after.nick and after.nick is not None:
+        print(f"{before.name} -----> {after.nick} Has role ------> {after.roles} Play ----> {after.activity.name}")
+
+
+
 
 
 bot.run(os.environ['BOT_DS_TOKEN'])
