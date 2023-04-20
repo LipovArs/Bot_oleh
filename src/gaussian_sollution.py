@@ -5,74 +5,73 @@ import numpy as np
 # ======================================================================
 # gaussian elimination algorithm
 
-
 # form augmented matrix
-def matrix_representation(system, syms):
+def matrix_representation(system, sym):
     # extract equation coefficients and constant
-    a, b = sp.linear_eq_to_matrix(system, syms)
+    a, b = sp.linear_eq_to_matrix(system, sym)
 
     # insert right hand size values into coefficients matrix
-    return np.asarray(a.col_insert(len(syms), b), dtype=np.float32)
+    return np.asarray(a.col_insert(len(sym), b), dtype=np.float32)
 
 
 # write rows in row echelon form
-def upper_triangular(M):
-    # move all zeros to buttom of matrix
-    M = np.concatenate((M[np.any(M != 0, axis=1)], M[np.all(M == 0, axis=1)]), axis=0)
+def upper_triangular(m):
+    # move all zeros to bottom of matrix
+    m = np.concatenate((m[np.any(m != 0, axis=1)], m[np.all(m == 0, axis=1)]), axis=0)
 
     # iterate over matrix rows
-    for i in range(0, M.shape[0]):
+    for i in range(0, m.shape[0]):
 
         # initialize row-swap iterator
         j = 1
 
         # select pivot value
-        pivot = M[i][i]
+        pivot = m[i][i]
 
         # find next non-zero leading coefficient
-        while pivot == 0 and i + j < M.shape[0]:
+        while pivot == 0 and i + j < m.shape[0]:
             # perform row swap operation
-            M[[i, i + j]] = M[[i + j, i]]
+            m[[i, i + j]] = m[[i + j, i]]
 
-            # incrememnt row-swap iterator
+            # increment row-swap iterator
             j += 1
 
             # get new pivot
-            pivot = M[i][i]
+            pivot = m[i][i]
 
         # if pivot is zero, remaining rows are all zeros
         if pivot == 0:
             # return upper triangular matrix
-            return M
+            return m
 
         # extract row
-        row = M[i]
+        row = m[i]
 
         # get 1 along the diagonal
-        M[i] = row / pivot
+        m[i] = row / pivot
 
         # iterate over remaining rows
-        for j in range(i + 1, M.shape[0]):
+        for j in range(i + 1, m.shape[0]):
             # subtract current row from remaining rows
-            M[j] = M[j] - M[i] * M[j][i]
+            m[j] = m[j] - m[i] * m[j][i]
 
     # return upper triangular matrix
-    return M
+    return m
 
 
-def backsubstitution(M, syms):
+def back_substitution(m, sym):
     # symbolic variable index
-    for i, row in reversed(list(enumerate(M))):
+    for i, row in reversed(list(enumerate(m))):
         # create symbolic equation
-        eqn = -M[i][-1]
-        for j in range(len(syms)):
-            eqn += syms[j] * row[j]
+        eqn = -m[i][-1]
+        for j in range(len(sym)):
+            eqn += sym[j] * row[j]
 
         # solve symbolic expression and store variable
-        syms[i] = sp.solve(eqn, syms[i])[0]
+        sym[i] = sp.solve(eqn, sym[i])[0]
 
     # return list of evaluated variables
-    return syms
+    return sym
 
 
 def validate_solution(system, solutions, tolerance=1e-6):
@@ -83,15 +82,15 @@ def validate_solution(system, solutions, tolerance=1e-6):
 
 
 # solve system using numpy built in functions
-def linalg_solve(system, syms):
+def lineal_solve(system, sym):
     # convert list of equations to matrix form
-    M, c = sp.linear_eq_to_matrix(system, syms)
+    m, c = sp.linear_eq_to_matrix(system, sym)
 
     # form augmented matrix - convert sympy matrices to numpy arrays and concatenate
-    M, c = np.asarray(M, dtype=np.float32), np.asarray(c, dtype=np.float32)
+    m, c = np.asarray(m, dtype=np.float32), np.asarray(c, dtype=np.float32)
 
     # solve system of equations
-    return np.linalg.solve(M, c)
+    return np.linalg.solve(m, c)
 
 
 def final_res(formula):
@@ -106,10 +105,10 @@ def final_res(formula):
     equations = list(eval(formula))
 
     # display equations
-    final_str = str([eqn for eqn in equations])
+    final_str += str([eqn for eqn in equations])
 
     # obtain augmented matrix representation
-    augmented_matrix = matrix_representation(system=equations, syms=symbolic_vars)
+    augmented_matrix = matrix_representation(system=equations, sym=symbolic_vars)
     final_str += str('\naugmented matrix:\n' + str(augmented_matrix))
 
     # generate upper triangular matrix form
@@ -117,19 +116,19 @@ def final_res(formula):
     final_str += str('\nupper triangular matrix:\n' + str(upper_triangular_matrix))
 
     # remove zero rows
-    backsub_matrix = upper_triangular_matrix[np.any(upper_triangular_matrix != 0, axis=1)]
-
-    # initialise numerical solution
-    numeric_solution = np.array([0., 0., 0.])
+    back_sub_matrix = upper_triangular_matrix[np.any(upper_triangular_matrix != 0, axis=1)]
 
     # assert that number of rows in matrix equals number of unknown variables
-    if backsub_matrix.shape[0] != len(symbolic_vars):
-        final_str += ('dependent system. infinite number of solutions')
-    elif not np.any(backsub_matrix[-1][:len(symbolic_vars)]):
-        final_str += ('inconsistent system. no solution..')
+    if back_sub_matrix.shape[0] != len(symbolic_vars):
+        final_str += 'dependent system. infinite number of solutions.'
+    elif not np.any(back_sub_matrix[-1][:len(symbolic_vars)]) or \
+            (back_sub_matrix[0][0] == back_sub_matrix[1][0] == back_sub_matrix[2][0] == 0) or \
+            (back_sub_matrix[0][1] == back_sub_matrix[1][1] == back_sub_matrix[2][1] == 0) or \
+            (back_sub_matrix[0][2] == back_sub_matrix[1][2] == back_sub_matrix[2][2] == 0):
+        final_str += '\n\ninconsistent system. no solution.'
     else:
-        # backsubstitute to solve for variables
-        numeric_solution = backsubstitution(backsub_matrix, symbolic_vars)
-        final_str += (f'\nsolutions:\n{numeric_solution}')
+        # back substitute to solve for variables
+        numeric_solution = back_substitution(back_sub_matrix, symbolic_vars)
+        final_str += f'\n\nsolutions:\n{numeric_solution}'
 
     return final_str
