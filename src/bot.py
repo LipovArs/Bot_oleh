@@ -5,7 +5,7 @@ from discord import Game
 import os
 import bot_func
 
-intents = discord.Intents.all()
+intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 intents.presences = True
@@ -13,6 +13,8 @@ intents.presences = True
 config = {
     'prefix': '.'
 }
+
+game_stats = {}
 
 bot = commands.Bot(command_prefix=config['prefix'], intents=intents)
 
@@ -25,7 +27,6 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-
     if message.content.startswith('.help'):
         await message.channel.send(bot_func.help_fun())
 
@@ -34,6 +35,25 @@ async def on_message(message):
 
     elif message.content.startswith('.gauss'):
         await message.channel.send(bot_func.gaussian_method(message.content))
+
+    elif message.content.startswith('.stats'):
+        members = message.guild.members
+        activities = {}
+        for member in members:
+            for activity in member.activities:
+                if activity.type == discord.ActivityType.playing:  # перевіряємо, що активність є грою
+                    game_name = activity.name
+                    member_nick = member.nick or member.name
+                    activities[f"{member_nick} - {game_name}"] = ''
+
+        output = "Activity Stats:\n"
+        formatted_activities = "\n".join(f"{key} {value}" for key, value in activities.items())
+
+        await message.channel.send(output + formatted_activities)
+
+    elif message.content.startswith('.role'):
+        roles = [role.name for role in message.author.roles]
+        await message.channel.send(roles)
 
     elif message.content.startswith('.'):
         await message.channel.send("Unknown command.")
@@ -45,13 +65,6 @@ async def on_message(message):
                 if content == course_word:
                     await message.delete()
                     await message.channel.send(f"{message.author.mention} ти не маєш ліцензії на слово ЖИД")
-
-
-@bot.event
-async def on_member_update(before, after):
-    if before.nick != after.nick and after.nick is not None:
-        print(f"{before.name} -----> {after.nick} Has role ------> {after.roles} Play ----> {after.activity.name}")
-
 
 
 
