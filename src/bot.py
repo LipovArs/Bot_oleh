@@ -34,13 +34,16 @@ async def on_message(message):
     elif message.content.startswith('.'):
         await message.channel.send("Unknown command.")
 
-    elif get(message.guild.roles, name="Жидобор") not in message.author.roles:
-        print(message.content)
-        for content in message.content.lower().split():
-            for course_word in bot_func.get_ban_words():
-                if content == course_word:
-                    await message.delete()
-                    await message.channel.send(f"{message.author.mention} ти не маєш ліцензії на слово ЖИД")
+    roles_list = [role.name for role in message.author.roles]
+    message_test = bot_func.message_control(message.content, roles_list)
+    if not message_test:
+        pass
+    elif message_test == 'Jid_detected':
+        await message.delete()
+        await message.channel.send(f"{message.author.mention} ти не маєш ліцензії на слово ЖИД")
+    else:
+        await message.delete()
+        await message.channel.send(f"{message.author.mention}, {message_test}")
 
 
 bot.run(os.environ['BOT_DS_TOKEN'])

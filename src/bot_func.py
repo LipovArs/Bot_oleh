@@ -1,4 +1,5 @@
 import gaussian_sollution
+import message_control
 CONTENT_WORDS = ["жид", "жиди", "жидо-бандерівець", "жидо-бандеравець", "жидобор", "жидо-бандера", "жидобандерівець",
                  "jid", "жидів", "жидами", "жида", "жидах", "жидом", "жиду", "жидам", "жиді", ";bl", ":bl", ";blb",
                  ":blb"]
@@ -6,8 +7,9 @@ CONTENT_WORDS = ["жид", "жиди", "жидо-бандерівець", "жи�
 
 def help_fun():
     """"Help function"""
-    return 'Here is some help about bot' \
-           '.check_all_ban_words - get all ban words on this server'
+    return 'Here is some help about bot\n' \
+           '.check_all_ban_words - get all ban words on this server\n' \
+           '.gauss - gaussian elimination'
 
 
 def get_ban_words():
@@ -19,3 +21,7 @@ def gaussian_method(msg):
     formula = msg[1]
 
     return gaussian_sollution.final_res(formula)
+
+
+def message_control(msg, roles):
+    return message_control.check(msg, roles)
