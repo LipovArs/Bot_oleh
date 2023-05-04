@@ -2,7 +2,6 @@ import gaussian_sollution
 import message_control
 import discord
 from discord import Game
-import bot_func
 
 CONTENT_WORDS = ["жид", "жиди", "жидо-бандерівець", "жидо-бандеравець", "жидобор", "жидо-бандера", "жидобандерівець",
                  "jid", "жидів", "жидами", "жида", "жидах", "жидом", "жиду", "жидам", "жиді", ";bl", ":bl", ";blb",
@@ -13,7 +12,15 @@ def help_fun():
     """"Help function"""
     return 'Here is some help about bot\n' \
            '.check_all_ban_words - get all ban words on this server\n' \
-           '.gauss - gaussian elimination'
+           '.gauss - gaussian elimination\n' \
+           '.stats - get activity stat of server\n' \
+           '.inf - get info about server members (admin/moderator only)\n' \
+           '.play - play music\n' \
+           '.pause - pause the track\n' \
+           '.resume - resume the track\n' \
+           '.skip - skip track\n' \
+           '.leave - stop playing music and leave bot from voice channel\n' \
+
 
 
 def get_ban_words():

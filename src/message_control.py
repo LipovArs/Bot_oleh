@@ -1,5 +1,5 @@
 import bot_func
-import langid
+from googletrans import LANGUAGES, Translator
 import random
 
 PHRASES = ['Не пукай',
@@ -21,8 +21,9 @@ def is_jid(msg, roles):
 
 
 def pig_language(msg):
-    if langid.classify(msg)[0] in ['ru', 'bg']:
-        return True
+    translator = Translator()
+    lang = translator.detect(msg).lang
+    return LANGUAGES[lang] == 'russian'
 
 
 def chose_phrase():
