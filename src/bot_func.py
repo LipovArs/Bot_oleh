@@ -1,5 +1,5 @@
-import gaussian_sollution
 import message_control
+
 import discord
 from discord import Game
 
@@ -20,19 +20,12 @@ def help_fun():
            '.resume - resume the track\n' \
            '.skip - skip track\n' \
            '.leave - stop playing music and leave bot from voice channel\n' \
+           '.vote - start vote\n' \
 
 
 
 def get_ban_words():
     return CONTENT_WORDS
-
-
-def gaussian_method(msg):
-    msg = msg.split(" ", 1)
-    formula = msg[1]
-
-    return gaussian_sollution.final_res(formula)
-
 
 def message_view(msg, roles):
     return message_control.check(msg, roles)

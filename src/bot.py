@@ -6,9 +6,9 @@ from discord import Game
 import os
 import bot_func
 import music_func
+import vote_func
 import datetime
 from discord import FFmpegPCMAudio
-import nacl
 import youtube_dl
 from typing import List
 
@@ -28,8 +28,6 @@ game_stats = {}
 bot = commands.Bot(command_prefix=config['prefix'], intents=intents)
 client = discord.Client(intents=intents)
 
-YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
-
 @bot.event
 async def on_ready():
     print(f"Bot {bot.user} is ready")
@@ -43,9 +41,6 @@ async def on_message(message):
 
     elif message.content.startswith('.check_all_ban_words'):
         await message.channel.send(bot_func.get_ban_words())
-
-    elif message.content.startswith('.gauss'):
-        await message.channel.send(bot_func.gaussian_method(message.content))
 
     elif message.content.startswith('.stats'):
         await message.channel.send(bot_func.stat_msg(message))
@@ -71,6 +66,10 @@ async def on_message(message):
     elif message.content.startswith('.leave'):
         await music_func.leave(message)
 
+    elif message.content.startswith('.vote'):
+        aut_id = message.author.id
+        await vote_func.vote(message, bot=bot, author_id=aut_id)
+
     elif message.content.startswith('.'):
         await message.channel.send("Unknown command.")
 
@@ -84,5 +83,6 @@ async def on_message(message):
     else:
         await message.delete()
         await message.channel.send(f"{message.author.mention}, {message_test}")
+
 
 bot.run(os.environ['BOT_DS_TOKEN'])
