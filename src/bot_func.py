@@ -1,31 +1,73 @@
 import message_control
+from discord.ext.commands import DefaultHelpCommand
 
 import discord
-from discord import Game
 
-CONTENT_WORDS = ["жид", "жиди", "жидо-бандерівець", "жидо-бандеравець", "жидобор", "жидо-бандера", "жидобандерівець",
-                 "jid", "жидів", "жидами", "жида", "жидах", "жидом", "жиду", "жидам", "жиді", ";bl", ":bl", ";blb",
-                 ":blb"]
+class CustomHelpCommand(DefaultHelpCommand):
+    async def send_bot_help(self, mapping):
+        ctx = self.context
+        user_is_admin = ctx.author.guild_permissions.administrator
+
+        help_message = discord.Embed(
+            title=f'Ось деяка інформація про бота:',
+            description=
+            "**.stats** - Отримати статистику активності сервера\n\n"
+            "**.play <url>** - Відтворення музики\n\n"
+            "**.pause** - Поставити трек на паузу\n\n"
+            "**.resume** - Відновити трек\n\n"
+            "**.skip** - Пропустити трек\n\n"
+            "**.stop** - Зупинка треку\n\n"
+            "**.leave** - Вихід бота з голосового каналу\n\n"
+            "**.queue** - Отримання черги треків\n\n"
+            "**.vote** - Почати голосування\n\n"
+            "**.top_voice_users** - Вивести топ користувачів за часом у голосових каналах\n\n"
+            "**.balance** - Переглянути свій баланс\n\n"
+            "**.casino** - Потрапити в чарівний GAMBLE-світ",
+            color=discord.Color.dark_grey()
+        )
+
+        admin_tip = discord.Embed(
+            title=f'Щоб переглянути команди адміністратора -.help_admin',
+            color=discord.Color.dark_gold()
+        )
+
+        if not user_is_admin:
+            await ctx.send(embed = help_message)
+        else:
+            await ctx.send(embeds = [help_message, admin_tip])
 
 
-def help_fun():
-    """"Help function"""
-    return 'Here is some help about bot\n' \
-           '.check_all_ban_words - get all ban words on this server\n' \
-           '.gauss - gaussian elimination\n' \
-           '.stats - get activity stat of server\n' \
-           '.inf - get info about server members (admin/moderator only)\n' \
-           '.play - play music\n' \
-           '.pause - pause the track\n' \
-           '.resume - resume the track\n' \
-           '.skip - skip track\n' \
-           '.leave - stop playing music and leave bot from voice channel\n' \
-           '.vote - start vote\n' \
 
+async def help_admin(ctx):
+    admin_command = discord.Embed(
+        title=f'Ось команди лише для адміністратора:',
+        description=
+        "**.check_all_ban_words** - Отримайте всі заборонені слова на цьому сервері\n\n"
+        "**.inf <nickname>** - Отримання інформації про учасників сервера\n\n"
+        "**.collect_user_info** - Збереження/оновлення інформації про користувачів в базу даних\n\n"
+        """
+        **.get_message_log** - Показує лог видалених або змінених повідомлень з певними фільтрами.
 
+        **Використання:**
 
-def get_ban_words():
-    return CONTENT_WORDS
+        `.get_message_log <user_name> <time_period>`
+
+    - `<user_name>`: (необов'язково) Ім'я користувача для фільтрації.
+    - `<time_period>`: (необов'язково) Період часу для фільтрації:
+    - **all** - Усі повідомлення.
+    - **last day** - Повідомлення за останній день.
+    - **last week** - Повідомлення за останній тиждень.
+    - **last month** - Повідомлення за останній місяць.
+
+        **Приклад використання:**
+
+    - `.get_message_log all` — Показує всі повідомлення.
+    - `.get_message_log user last day` — Показує повідомлення користувача `user` за останній день.
+    - `.get_message_log all last month` — Показує всі повідомлення за останній місяць.
+        """'\n\n',
+        color=discord.Color.dark_gold()
+    )
+    await ctx.send(embed = admin_command)
 
 def message_view(msg, roles):
     return message_control.check(msg, roles)
@@ -53,10 +95,10 @@ def stat_msg(message):
     return res
 
 
-async def user_info(message):
-    moderator_role = discord.utils.get(message.guild.roles, name='Moderator')
-    if message.author.guild_permissions.administrator or moderator_role in message.author.roles:
-        user_input = message.content
+async def user_info(ctx):
+    moderator_role = discord.utils.get(ctx.guild.roles, name='Moderator')
+    if ctx.author.guild_permissions.administrator or moderator_role in ctx.author.roles:
+        user_input = ctx.message.content
         parts = user_input.split()
         if parts[0] == '.inf':
             user_input_processed = ' '.join(parts[:1] + [part.replace(' ', '_') for part in parts[1:]])
@@ -64,9 +106,9 @@ async def user_info(message):
             parts_processed = user_input_processed.split()
             user_enter_nick = " ".join(parts_processed[1:])
             if len(parts_processed) < 2:
-                await message.channel.send('Недостатньо аргументів.')
+                await ctx.channel.send('Недостатньо аргументів.')
             else:
-                guild = message.guild
+                guild = ctx.guild
                 users_found = []
                 for member in guild.members:
                     if member.nick == user_enter_nick or member.name == user_enter_nick:
@@ -80,15 +122,16 @@ async def user_info(message):
                         joined_at = user.joined_at
                         user_avatar_url = None
                         created_at = user.created_at
+                        user_id = user.id
                         try:
                             if not user.avatar.url == 'NoneType':
                                 user_avatar_url = user.avatar.url
                         except:
                             print("None Avatar")
-                        await message.channel.send(
-                            f"User - {user}\nNick - {user_name}\nRoles - {user_role}\nJoined at - {joined_at}\n" +
+                        await ctx.channel.send(
+                            f"User - {user}\nNick - {user_name}\nID - {user_id}\nRoles - {user_role}\nJoined at - {joined_at}\n" +
                             f"Created at - {created_at}\nAvatar URL - {user_avatar_url}")
                 else:
-                    await message.channel.send('Nope')
+                    await ctx.channel.send('Користувача не знайдено. Спробуйте ввести User name користувача, якщо його Nickname має нестандартний шрифт.')
     else:
-        await message.channel.send("В вас недостатньо прав.")
+        await ctx.channel.send("В вас недостатньо прав.")

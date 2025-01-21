@@ -1,20 +1,19 @@
 import discord
 import asyncio
 import re
-from discord import Embed
 
 
 async def vote(message, bot, author_id):
 
     try:
-        create_message = await message.channel.send("Creating a new poll...")
-        create_message_name = await message.channel.send("Enter name of vote")
+        await message.channel.send("Стрворення нового голосування...")
+        await message.channel.send("Введіть назву голосування")
         name = await bot.wait_for('message', check=lambda message: message.author.id == author_id, timeout=120)
 
-        create_message_option = await message.channel.send("Enter variants vote (space)")
+        await message.channel.send("Введіть варіанти відповіді (тільки смайлами, через пробіл)")
         options = await bot.wait_for('message', check=lambda message: message.author.id == author_id, timeout=120)
 
-        create_message_duration = await message.channel.send("Enter duration (e.g., 5 minutes, 2 hours, 3 days, 1 week)")
+        await message.channel.send("Введіть тривалісь (5 min - (5 хвилин), 2 h - (2 години), 3 d - (3 дні), 1 w - (1 тиждень)")
         duration = await bot.wait_for('message', check=lambda message: message.author.id == author_id, timeout=120)
 
         duration_text = duration.content.lower()
@@ -23,22 +22,21 @@ async def vote(message, bot, author_id):
 
         duration_time = 10
 
-        if duration_unit == 'minutes':
+        if duration_unit == 'minu':
             duration_time = duration_value * 60
-        elif duration_unit == 'hours':
+        elif duration_unit == 'h':
             duration_time = (duration_value * 60) * 60
-        elif duration_unit == 'days':
+        elif duration_unit == 'd':
             duration_time = ((duration_value * 60) * 60) * 24
-        elif duration_unit == 'week':
+        elif duration_unit == 'w':
             duration_time = (((duration_value * 60) * 60) * 24) * 7
-
-        messages_to_delete = [create_message, message, name, create_message_name, options, create_message_option,
-                              duration, create_message_duration]
 
         reactions = [option.strip() for option in options.content.split(' ')]
         allowed_reactions = reactions.copy()
 
         results = {reaction: 0 for reaction in reactions}
+
+        messages_to_delete = [msg async for msg in message.channel.history(limit=8)]
 
         for msg in messages_to_delete:
             await msg.delete()
